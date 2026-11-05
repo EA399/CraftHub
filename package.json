@@ -6,12 +6,15 @@
   "author": "EA399",
   "license": "MIT",
   "private": true,
-  "scripts": {
-    "start": "electron .",
-    "dist": "electron-builder",
-    "build:win": "electron-builder --win nsis --publish never"
-    "build:linux": "electron-builder --linux AppImage",
-    "build:mac": "electron-builder --mac dmg"
+
+"scripts": {
+  "start": "electron .",
+  "dist": "electron-builder --publish never",
+  "build:win": "electron-builder --win nsis --publish never",
+  "build:linux": "electron-builder --linux AppImage --publish never",
+  "build:mac": "electron-builder --mac dmg --publish never"
+},
+
   },
   "devDependencies": {
     "electron": "^39.0.0",
