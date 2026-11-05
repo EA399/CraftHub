@@ -1,0 +1,26 @@
+{
+  "name": "crafthub",
+  "version": "2.2.0",
+  "description": "Minecraft instance manager with Modrinth project browsing",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --publish never",
+    "build:win": "electron-builder --win nsis --publish never",
+    "build:linux": "electron-builder --linux AppImage --publish never",
+    "build:mac": "electron-builder --mac dmg --publish never"
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "dev.crafthub.launcher",
+    "productName": "CraftHub",
+    "directories": { "output": "dist" },
+    "files": ["main.js", "preload.js", "index.html", "README.md"],
+    "win": { "target": "nsis" },
+    "linux": { "target": "AppImage" },
+    "mac": { "target": "dmg" }
+  }
+}
