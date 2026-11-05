@@ -9,7 +9,7 @@
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder",
-    "build:win": "electron-builder --win nsis",
+    "build:win": "electron-builder --win nsis --publish never"
     "build:linux": "electron-builder --linux AppImage",
     "build:mac": "electron-builder --mac dmg"
   },
