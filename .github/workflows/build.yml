@@ -25,7 +25,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
       - name: Abhängigkeiten installieren
         run: npm install
@@ -33,7 +32,7 @@ jobs:
       - name: Windows EXE bauen
         run: npm run build:win
 
-      - name: EXE zum Download bereitstellen
+      - name: EXE hochladen
         uses: actions/upload-artifact@v4
         with:
           name: CraftHub-Windows-EXE
