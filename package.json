@@ -13,10 +13,7 @@
   "build:win": "electron-builder --win nsis --publish never",
   "build:linux": "electron-builder --linux AppImage --publish never",
   "build:mac": "electron-builder --mac dmg --publish never"
-},
-
-  },
-  "devDependencies": {
+},  "devDependencies": {
     "electron": "^39.0.0",
     "electron-builder": "^26.0.12"
   },
