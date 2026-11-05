@@ -1,0 +1,42 @@
+
+name: CraftHub Windows Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Repository herunterladen
+        uses: actions/checkout@v4
+
+      - name: Node.js installieren
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Abhängigkeiten installieren
+        run: npm install
+
+      - name: Windows EXE bauen
+        run: npm run build:win
+
+      - name: EXE zum Download bereitstellen
+        uses: actions/upload-artifact@v4
+        with:
+          name: CraftHub-Windows-EXE
+          path: dist/*.exe
+          if-no-files-found: error
+          retention-days: 30
