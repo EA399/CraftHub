@@ -1,0 +1,59 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Test and package
+        run: mvn --batch-mode verify
+      - name: Upload launcher JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: CraftHub
+          path: target/CraftHub-*.jar
+
+  windows-installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Test and package
+        run: mvn --batch-mode verify
+      - name: Prepare installer input
+        run: |
+          New-Item -ItemType Directory -Force -Path jpackage-input | Out-Null
+          Copy-Item target/CraftHub-1.0.0.jar jpackage-input/
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          java -Djava.awt.headless=true -cp target/CraftHub-1.0.0.jar de.crafthub.IconGenerator target/CraftHub.ico
+      - name: Create Windows installer
+        run: jpackage --type exe --input jpackage-input --dest dist --name CraftHub --main-jar CraftHub-1.0.0.jar --main-class de.crafthub.LauncherApp --app-version 1.0.0 --icon target/CraftHub.ico --win-shortcut
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: CraftHub-Windows
+          path: dist/CraftHub-1.0.0.exe
+      - name: Create portable Windows folder
+        run: jpackage --type app-image --input jpackage-input --dest portable --name CraftHub --main-jar CraftHub-1.0.0.jar --main-class de.crafthub.LauncherApp --app-version 1.0.0 --icon target/CraftHub.ico
+      - name: Upload portable folder with EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: CraftHub-Windows-Ordner
+          path: portable/CraftHub
+          if-no-files-found: error
