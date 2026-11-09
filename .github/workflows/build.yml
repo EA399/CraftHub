@@ -66,12 +66,13 @@ jobs:
           name: CraftHub-Windows-Portable
           path: portable/CraftHub
           if-no-files-found: error
-      - name: Prepare folder with standalone installer
+      - name: Prepare folder with launcher and installer
         run: |
           New-Item -ItemType Directory -Force -Path release\CraftHub | Out-Null
-          Copy-Item dist\CraftHub-1.0.0.exe release\CraftHub\CraftHub.exe
-          Set-Content -Path release\CraftHub\README.txt -Value 'Doppelklick auf CraftHub.exe startet den Installer. Die Datei kann direkt aus dem ZIP gestartet werden.' -Encoding utf8
-      - name: Upload folder with standalone EXE
+          Copy-Item portable\CraftHub\* release\CraftHub -Recurse
+          Copy-Item dist\CraftHub-1.0.0.exe release\CraftHub\CraftHub-Setup.exe
+          Set-Content -Path release\CraftHub\README.txt -Value 'ZIP vollständig extrahieren und danach CraftHub.exe starten. CraftHub-Setup.exe ist der optionale Installer.' -Encoding utf8
+      - name: Upload folder with launcher and installer
         uses: actions/upload-artifact@v4
         with:
           name: CraftHub-Windows-Ordner

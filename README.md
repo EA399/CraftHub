@@ -24,7 +24,7 @@ java -jar CraftHub-1.0.0.jar
 
 Unter Windows funktioniert dieselbe JAR-Datei mit installiertem Java, zum Beispiel per Doppelklick oder über PowerShell. Die Windows-CI erstellt außerdem einen nativen Installer mit CraftHub-Desktopverknüpfung als Workflow-Artefakt.
 
-Der Windows-Workflow erstellt zusätzlich das Artefakt `CraftHub-Windows-Ordner`. Darin ist `CraftHub.exe` der eigenständige Installer und kann direkt aus dem ZIP gestartet werden. Das separate Artefakt `CraftHub-Windows-Portable` enthält den portablen Launcher samt Java-Laufzeit; dieses ZIP muss vollständig entpackt werden, bevor `CraftHub.exe` gestartet wird.
+Der Windows-Workflow erstellt zusätzlich das Artefakt `CraftHub-Windows-Ordner`. ZIP vollständig entpacken und danach `CraftHub.exe` starten; `app` und `runtime` liegen direkt daneben. `CraftHub-Setup.exe` ist der optionale Installer. Das separate Artefakt `CraftHub-Windows-Portable` enthält dieselbe portable App ohne Installer.
 
 ## Entwickeln und bauen
 
