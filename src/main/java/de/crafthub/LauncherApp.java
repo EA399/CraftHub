@@ -37,8 +37,13 @@ import java.awt.RenderingHints;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.LinkedHashMap;
@@ -85,14 +90,37 @@ public final class LauncherApp {
     }
 
     public static void main(String[] args) {
+        Thread.setDefaultUncaughtExceptionHandler((thread, error) -> logFailure(error));
         SwingUtilities.invokeLater(() -> {
             try {
                 new LauncherApp().show();
-            } catch (IOException exception) {
-                JOptionPane.showMessageDialog(null, exception.getMessage(), "CraftHub konnte nicht starten",
+            } catch (Exception exception) {
+                logFailure(exception);
+                JOptionPane.showMessageDialog(null,
+                        exception.getMessage() + "\n\nDetails: " + logFilePath(), "CraftHub konnte nicht starten",
                         JOptionPane.ERROR_MESSAGE);
             }
         });
+    }
+
+    private static Path logFilePath() {
+        String localAppData = System.getenv("LOCALAPPDATA");
+        Path appData = localAppData == null || localAppData.isBlank()
+                ? Path.of(System.getProperty("user.home"), ".crafthub")
+                : Path.of(localAppData, "CraftHub");
+        return appData.resolve("logs").resolve("launcher.log");
+    }
+
+    private static void logFailure(Throwable error) {
+        try {
+            Files.createDirectories(logFilePath().getParent());
+            StringWriter details = new StringWriter();
+            error.printStackTrace(new PrintWriter(details));
+            Files.writeString(logFilePath(), Instant.now() + System.lineSeparator() + details
+                            + System.lineSeparator(),
+                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        } catch (IOException ignored) {
+        }
     }
 
     private void show() {

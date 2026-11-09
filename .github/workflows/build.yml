@@ -43,7 +43,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path dist | Out-Null
           java -cp target/CraftHub-1.0.0.jar de.crafthub.IconGenerator target/CraftHub.ico
       - name: Create Windows installer
-        run: jpackage --type exe --input jpackage-input --dest dist --name CraftHub --main-jar CraftHub-1.0.0.jar --main-class de.crafthub.LauncherApp --app-version 1.0.0 --icon target/CraftHub.ico --win-shortcut
+        run: jpackage --type exe --input jpackage-input --dest dist --name CraftHub --main-jar CraftHub-1.0.0.jar --main-class de.crafthub.LauncherApp --app-version 1.0.0 --icon target/CraftHub.ico --win-shortcut --win-menu
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
         with:
@@ -51,6 +51,15 @@ jobs:
           path: dist/CraftHub-1.0.0.exe
       - name: Create portable Windows folder
         run: jpackage --type app-image --input jpackage-input --dest portable --name CraftHub --main-jar CraftHub-1.0.0.jar --main-class de.crafthub.LauncherApp --app-version 1.0.0 --icon target/CraftHub.ico
+      - name: Smoke test Windows launcher
+        shell: pwsh
+        run: |
+          $launcher = Join-Path $PWD 'portable/CraftHub/CraftHub.exe'
+          $process = Start-Process -FilePath $launcher -PassThru
+          try { Wait-Process -Id $process.Id -Timeout 10 -ErrorAction SilentlyContinue } catch {}
+          $process.Refresh()
+          if ($process.HasExited) { throw "CraftHub exited during startup with code $($process.ExitCode)." }
+          Stop-Process -Id $process.Id -Force
       - name: Upload portable folder with EXE
         uses: actions/upload-artifact@v4
         with:
