@@ -41,7 +41,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path jpackage-input | Out-Null
           Copy-Item target/CraftHub-1.0.0.jar jpackage-input/
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          java -Djava.awt.headless=true -cp target/CraftHub-1.0.0.jar de.crafthub.IconGenerator target/CraftHub.ico
+          java -cp target/CraftHub-1.0.0.jar de.crafthub.IconGenerator target/CraftHub.ico
       - name: Create Windows installer
         run: jpackage --type exe --input jpackage-input --dest dist --name CraftHub --main-jar CraftHub-1.0.0.jar --main-class de.crafthub.LauncherApp --app-version 1.0.0 --icon target/CraftHub.ico --win-shortcut
       - name: Upload Windows installer
