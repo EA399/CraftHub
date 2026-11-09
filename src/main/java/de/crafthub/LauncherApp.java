@@ -44,6 +44,7 @@ import java.util.Locale;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.prefs.Preferences;
 
 public final class LauncherApp {
     private static final float LEFT_ALIGNMENT = 0.0f;
@@ -55,10 +56,12 @@ public final class LauncherApp {
     private static final Color MUTED = new Color(159, 173, 193);
     private static final Color ACCENT = new Color(31, 216, 151);
     private static final Color LINE = new Color(48, 57, 74);
+    private static final String MICROSOFT_CLIENT_ID_KEY = "microsoftClientId";
 
     private final MinecraftApi minecraftApi = new MinecraftApi();
-    private final MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator();
+    private MicrosoftAuthenticator authenticator = new MicrosoftAuthenticator();
     private final InstanceRepository repository;
+    private final Preferences preferences = Preferences.userNodeForPackage(LauncherApp.class);
     private final JPanel pageContainer = new JPanel(new BorderLayout());
     private final JTextField globalSearchField = new JTextField();
     private final Map<String, JButton> navigationButtons = new LinkedHashMap<>();
@@ -652,6 +655,27 @@ public final class LauncherApp {
     }
 
     private void startLogin() {
+        String clientId = System.getenv("CRAFTHUB_MICROSOFT_CLIENT_ID");
+        if (clientId == null || clientId.isBlank()) {
+            clientId = preferences.get(MICROSOFT_CLIENT_ID_KEY, "");
+        }
+        if (clientId.isBlank()) {
+            clientId = configureMicrosoftApp();
+            if (clientId == null) {
+                setStatus("Microsoft-Anmeldung noch nicht eingerichtet");
+                return;
+            }
+        }
+        try {
+            clientId = MicrosoftAuthenticator.normalizeClientId(clientId);
+        } catch (IllegalArgumentException exception) {
+            JOptionPane.showMessageDialog(frame, exception.getMessage(), "Ungültige Microsoft-App-ID",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        preferences.put(MICROSOFT_CLIENT_ID_KEY, clientId);
+        authenticator = new MicrosoftAuthenticator(clientId);
+        MicrosoftAuthenticator loginAuthenticator = authenticator;
         accountButton.setEnabled(false);
         accountButton.setText("Verbinde ...");
         setStatus("Microsoft-Anmeldung wird vorbereitet");
@@ -660,24 +684,65 @@ public final class LauncherApp {
         new SwingWorker<DeviceCode, Void>() {
             @Override
             protected DeviceCode doInBackground() throws Exception {
-                return authenticator.requestDeviceCode();
+                return loginAuthenticator.requestDeviceCode();
             }
 
             @Override
             protected void done() {
                 try {
                     DeviceCode deviceCode = get();
-                    showDeviceCode(deviceCode, cancelled);
+                    showDeviceCode(deviceCode, cancelled, loginAuthenticator);
                 } catch (Exception exception) {
                     accountButton.setEnabled(true);
-                    accountButton.setText("Microsoft anmelden");
+                    accountButton.setText("Mit Microsoft anmelden");
                     showError(footerStatus, "Anmeldung konnte nicht gestartet werden", exception);
                 }
             }
         }.execute();
     }
 
-    private void showDeviceCode(DeviceCode deviceCode, AtomicBoolean cancelled) {
+    private String configureMicrosoftApp() {
+        JTextField clientId = new JTextField();
+        clientId.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
+        clientId.setBackground(SURFACE);
+        clientId.setForeground(TEXT);
+        clientId.setCaretColor(TEXT);
+        clientId.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(LINE),
+                new EmptyBorder(10, 12, 10, 12)));
+        JLabel instructions = label("<html>Microsoft verlangt eine eigene App-ID für den Login.<br>"
+                + "1. App in Microsoft Entra registrieren.<br>"
+                + "2. Persönliche Microsoft-Konten erlauben.<br>"
+                + "3. „Öffentlicher Client“ aktivieren und die Anwendungs-ID hier einfügen.</html>", 12, MUTED);
+        JButton openPortal = textButton("Microsoft Entra öffnen");
+        openPortal.setAlignmentX(LEFT_ALIGNMENT);
+        openPortal.addActionListener(event -> openVerificationPage("https://entra.microsoft.com/"));
+        JPanel content = new JPanel();
+        content.setBackground(BACKGROUND);
+        content.setBorder(new EmptyBorder(8, 8, 4, 8));
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        content.add(instructions);
+        content.add(Box.createVerticalStrut(12));
+        content.add(openPortal);
+        content.add(Box.createVerticalStrut(10));
+        content.add(label("Anwendungs-ID", 12, TEXT));
+        content.add(Box.createVerticalStrut(5));
+        content.add(clientId);
+        int answer = JOptionPane.showConfirmDialog(frame, content, "Microsoft-Anmeldung einrichten",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        if (answer != JOptionPane.OK_OPTION) {
+            return null;
+        }
+        try {
+            return MicrosoftAuthenticator.normalizeClientId(clientId.getText());
+        } catch (IllegalArgumentException exception) {
+            JOptionPane.showMessageDialog(frame, exception.getMessage(), "Ungültige Microsoft-App-ID",
+                    JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+    }
+
+    private void showDeviceCode(DeviceCode deviceCode, AtomicBoolean cancelled,
+                                MicrosoftAuthenticator loginAuthenticator) {
         loginDialog = new JDialog(frame, "Mit Microsoft anmelden", false);
         loginDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         JPanel content = new JPanel();
@@ -730,7 +795,7 @@ public final class LauncherApp {
         new SwingWorker<MinecraftAccount, Void>() {
             @Override
             protected MinecraftAccount doInBackground() throws Exception {
-                return authenticator.completeLogin(deviceCode, cancelled);
+                return loginAuthenticator.completeLogin(deviceCode, cancelled);
             }
 
             @Override

@@ -12,7 +12,7 @@ CraftHub ist ein Java-Desktop-Launcher zum Verwalten von Minecraft-Instanzen und
 - Instanzordner direkt öffnen
 - Eigenes CraftHub-Icon im Fenster, in der Taskleiste und in der Windows-Desktopverknüpfung
 
-Der Microsoft-Login verwendet den offiziellen OAuth-Geraetecode-Ablauf. Microsoft verlangt eine registrierte App-ID; sie muss vor dem Login als `CRAFTHUB_MICROSOFT_CLIENT_ID` in der Umgebung gesetzt werden. Details stehen im Abschnitt "Microsoft-Login". Das Herunterladen des Spielclients und der Spielstart sind noch nicht enthalten.
+Der Microsoft-Login verwendet den offiziellen OAuth-Gerätecode-Ablauf. Microsoft verlangt eine eigene registrierte App-ID; CraftHub fragt sie beim ersten Anmelden ab und speichert sie lokal. Das Herunterladen des Spielclients und der Spielstart sind noch nicht enthalten.
 
 ## Starten
 
@@ -37,11 +37,6 @@ Profile werden unter `%APPDATA%/CraftHub` auf Windows und unter `~/.crafthub` au
 
 ## Microsoft-Login
 
-Registriere in [Microsoft Entra](https://entra.microsoft.com/) eine App für persönliche Microsoft-Konten und erlaube den Public-Client-Flow. Setze die angezeigte Anwendungs-ID vor dem Start:
+Registriere in [Microsoft Entra](https://entra.microsoft.com/) eine App. Wähle persönliche Microsoft-Konten als unterstützten Kontotyp und aktiviere unter Authentifizierung den öffentlichen Client-Flow. Beim ersten Klick auf „Mit Microsoft anmelden“ fügst du die Anwendungs-ID in CraftHub ein. Sie wird nur lokal in deinen Benutzereinstellungen gespeichert.
 
-```powershell
-$env:CRAFTHUB_MICROSOFT_CLIENT_ID = "deine-anwendungs-id"
-java -jar .\CraftHub-1.0.0.jar
-```
-
-Die Client-ID ist eine öffentliche App-Kennung, kein Passwort. CraftHub speichert keine Microsoft-Zugangsdaten oder Tokens.
+Die Client-ID ist eine öffentliche App-Kennung, kein Passwort. CraftHub speichert keine Microsoft-Zugangsdaten oder Tokens. Alternativ kann `CRAFTHUB_MICROSOFT_CLIENT_ID` als Umgebungsvariable gesetzt werden.

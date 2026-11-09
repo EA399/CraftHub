@@ -20,7 +20,15 @@ public final class MicrosoftAuthenticator {
             "https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode";
     private static final String TOKEN_URL = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
     private static final ObjectMapper MAPPER = new ObjectMapper();
-    private final String clientId = System.getenv(CLIENT_ID_ENV);
+    private final String clientId;
+
+    public MicrosoftAuthenticator() {
+        this(System.getenv(CLIENT_ID_ENV));
+    }
+
+    public MicrosoftAuthenticator(String clientId) {
+        this.clientId = clientId;
+    }
 
     private final HttpClient client = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(15))
@@ -203,13 +211,20 @@ public final class MicrosoftAuthenticator {
     private String requireClientId() throws IOException {
         if (clientId == null || clientId.isBlank()) {
             throw new IOException("Microsoft-Anmeldung ist noch nicht konfiguriert. Registriere eine eigene App in "
-                    + "Microsoft Entra und setze CRAFTHUB_MICROSOFT_CLIENT_ID auf ihre Anwendungs-ID.");
+                    + "Microsoft Entra und gib ihre Anwendungs-ID ein.");
         }
         try {
-            return java.util.UUID.fromString(clientId.strip()).toString();
+            return normalizeClientId(clientId);
         } catch (IllegalArgumentException exception) {
-            throw new IOException("CRAFTHUB_MICROSOFT_CLIENT_ID muss eine gültige Microsoft-Anwendungs-ID sein.");
+            throw new IOException("Bitte gib eine gültige Microsoft-Anwendungs-ID ein.");
         }
+    }
+
+    public static String normalizeClientId(String clientId) {
+        if (clientId == null || clientId.isBlank()) {
+            throw new IllegalArgumentException("Die Microsoft-Anwendungs-ID darf nicht leer sein.");
+        }
+        return java.util.UUID.fromString(clientId.strip()).toString();
     }
 
     public record DeviceCode(String deviceCode, String userCode, String verificationUri, long expiresIn, int interval) {
