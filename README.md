@@ -34,6 +34,7 @@ java -jar target/CraftHub-1.0.0.jar
 ```
 
 Profile werden unter `%APPDATA%/CraftHub` auf Windows und unter `~/.crafthub` auf Linux und macOS gespeichert.
+Startfehler werden unter `%LOCALAPPDATA%/CraftHub/logs/launcher.log` protokolliert.
 
 ## Microsoft-Login
 
