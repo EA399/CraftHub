@@ -2,7 +2,7 @@
   "name": "crafthub-launcher",
   "version": "0.1.0",
   "description": "CraftHub – Minecraft Launcher",
-  "main": "src/main.js",
+  "main": "main.js",
   "author": "CraftHub",
   "license": "MIT",
   "scripts": {
@@ -20,13 +20,25 @@
   "build": {
     "appId": "de.crafthub.launcher",
     "productName": "CraftHub",
-    "files": ["src/**/*", "package.json"],
-    "win": { "target": "nsis" },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer.js",
+      "index.html",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis"
+    },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "artifactName": "CraftHub-Setup.${ext}"
     },
-    "publish": [{ "provider": "github" }]
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ]
   }
 }
