@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'">
+<title>CraftHub</title>
+<style>
+  body{margin:0;font:15px system-ui,sans-serif;background:#1b2a2e;color:#e6f0ee;display:flex;flex-direction:column;height:100vh}
+  header{padding:18px 24px;font-size:22px;font-weight:700;border-bottom:2px solid #35494e}
+  main{padding:24px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  select,button{font:inherit;padding:10px 14px;border-radius:4px;border:0}
+  button{background:#74b24f;color:#10200a;font-weight:700;cursor:pointer;border-bottom:4px solid #5c9a3b}
+  button:disabled{opacity:.5;cursor:default}
+  #user{color:#9db3b0}
+  progress{width:100%;height:10px}
+  #log{flex:1;margin:0 24px 24px;padding:12px;background:#142024;overflow:auto;white-space:pre-wrap;font:12px ui-monospace,monospace;color:#9db3b0}
+</style>
+</head>
+<body>
+<header>CraftHub</header>
+<main>
+  <button id="login">Mit Microsoft anmelden</button>
+  <span id="user"></span>
+  <select id="version"></select>
+  <select id="ram">
+    <option value="2">2 GB RAM</option>
+    <option value="4" selected>4 GB RAM</option>
+    <option value="6">6 GB RAM</option>
+    <option value="8">8 GB RAM</option>
+  </select>
+  <button id="play" disabled>Spielen</button>
+  <progress id="bar" value="0" max="100" hidden></progress>
+</main>
+<pre id="log">Bereit. Melde dich an, wähle eine Version und klicke auf „Spielen“.</pre>
+<script src="renderer.js"></script>
+</body>
+</html>
